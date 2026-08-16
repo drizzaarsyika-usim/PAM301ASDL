@@ -1,0 +1,7 @@
+{
+  "name": "Clinical Reasoning SDL Master",
+  "description": "Self-directed clinical reasoning platform for medical students with rotating team roles, locked progressive disclosure, weekly authentic cases (Weeks 1-9), diagnostic assignments, Islamic medical considerations, multi-device cloud sync, and printable group reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
