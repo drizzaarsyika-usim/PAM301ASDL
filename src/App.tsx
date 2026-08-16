@@ -14,25 +14,25 @@ import { PrintableReportModal } from './components/PrintableReportModal';
 import { AiTutorModal } from './components/AiTutorModal';
 
 const DEFAULT_TEAMMATES = [
-  'Ahmad Faiz',
-  'Nurul Syahirah',
-  'Tan Wei Ming',
-  'Kavitha a/p Ramesh',
-  'Muhammad Danish',
-  'Siti Sarah',
-  'Lee Jian Wei',
-  'Farah Nabila'
+  'Student 1',
+  'Student 2',
+  'Student 3',
+  'Student 4',
+  'Student 5',
+  'Student 6',
+  'Student 7',
+  'Student 8'
 ];
 
 const DEFAULT_ASSIGNMENTS: Record<string, string> = {
-  chair: 'Ahmad Faiz',
-  presenter: 'Nurul Syahirah',
-  problem_lead: 'Tan Wei Ming',
-  ddx_lead: 'Kavitha a/p Ramesh',
-  investigation_strategist: 'Muhammad Danish',
-  management_lead: 'Siti Sarah',
-  devils_advocate: 'Lee Jian Wei',
-  scribe: 'Farah Nabila'
+  chair: 'Student 1',
+  presenter: 'Student 2',
+  problem_lead: 'Student 3',
+  ddx_lead: 'Student 4',
+  investigation_strategist: 'Student 5',
+  management_lead: 'Student 6',
+  devils_advocate: 'Student 7',
+  scribe: 'Student 8'
 };
 
 const DEFAULT_REFLECTION: TeamReflection = {
