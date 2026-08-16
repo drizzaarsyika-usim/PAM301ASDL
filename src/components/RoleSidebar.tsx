@@ -53,6 +53,10 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
 
   if (!isOpen) return null;
 
+  const assignedCount = Object.keys(roleAssignments).filter(
+    (k) => !!roleAssignments[k] && roleAssignments[k] !== 'Unassigned' && teammates.includes(roleAssignments[k])
+  ).length;
+
   const handleAddTeammate = (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim() && !teammates.includes(newName.trim())) {
@@ -62,24 +66,84 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
   };
 
   const handleRemoveTeammate = (indexToRemove: number) => {
+    const removedName = teammates[indexToRemove];
     const updated = teammates.filter((_, idx) => idx !== indexToRemove);
     onUpdateTeammates(updated);
+
+    // Also unassign this student from any role
+    const updatedAssignments = { ...roleAssignments };
+    Object.keys(updatedAssignments).forEach((k) => {
+      if (updatedAssignments[k] === removedName) {
+        updatedAssignments[k] = 'Unassigned';
+      }
+    });
+    onUpdateAssignments(updatedAssignments);
+  };
+
+  const handleClearAllStudents = () => {
+    if (window.confirm('Clear all students from roster? All roles will become Unassigned.')) {
+      onUpdateTeammates([]);
+      const emptyAssignments: Record<string, string> = {};
+      TEAM_ROLES.forEach((role) => {
+        emptyAssignments[role.id] = 'Unassigned';
+      });
+      onUpdateAssignments(emptyAssignments);
+    }
+  };
+
+  const handleLoadSampleRoster = () => {
+    const sample = [
+      'Ahmad Faiz',
+      'Nurul Syahirah',
+      'Tan Wei Ming',
+      'Kavitha a/p Ramesh',
+      'Muhammad Danish',
+      'Siti Sarah',
+      'Lee Jian Wei',
+      'Farah Nabila'
+    ];
+    onUpdateTeammates(sample);
+    const sampleAssignments: Record<string, string> = {};
+    TEAM_ROLES.forEach((role, idx) => {
+      sampleAssignments[role.id] = sample[idx] || 'Unassigned';
+    });
+    onUpdateAssignments(sampleAssignments);
   };
 
   const handleShuffleRoles = () => {
+    if (teammates.length === 0) {
+      const emptyAssignments: Record<string, string> = {};
+      TEAM_ROLES.forEach((role) => {
+        emptyAssignments[role.id] = 'Unassigned';
+      });
+      onUpdateAssignments(emptyAssignments);
+      return;
+    }
+
     setIsShuffling(true);
     setTimeout(() => {
       const shuffledNames = [...teammates].sort(() => Math.random() - 0.5);
       const newAssignments: Record<string, string> = {};
 
       TEAM_ROLES.forEach((role, idx) => {
-        // If there are fewer teammates than 8 roles, cycle through them
-        newAssignments[role.id] = shuffledNames[idx % shuffledNames.length] || 'Unassigned';
+        // Tally strictly with number of students
+        if (idx < shuffledNames.length) {
+          newAssignments[role.id] = shuffledNames[idx];
+        } else {
+          newAssignments[role.id] = 'Unassigned';
+        }
       });
 
       onUpdateAssignments(newAssignments);
       setIsShuffling(false);
     }, 400);
+  };
+
+  const handleRoleSelectChange = (roleId: string, studentName: string) => {
+    onUpdateAssignments({
+      ...roleAssignments,
+      [roleId]: studentName
+    });
   };
 
   return (
@@ -94,10 +158,10 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-800 leading-tight">
-                Team Roles & Shuffler
+                Team Roles &amp; Shuffler
               </h2>
               <p className="text-xs text-slate-500">
-                8 Rotating SDL Clinical Reasoning Roles
+                {assignedCount} of 8 Roles Assigned ({teammates.length} student{teammates.length === 1 ? '' : 's'} in roster)
               </p>
             </div>
           </div>
@@ -121,7 +185,7 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Assigned Roles ({Object.keys(roleAssignments).length})
+              Assigned Roles ({assignedCount}/8)
             </button>
             <button
               onClick={() => setActiveTab('members')}
@@ -139,7 +203,8 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
             id="shuffle-roles-action-btn"
             onClick={handleShuffleRoles}
             disabled={isShuffling || teammates.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            title={teammates.length === 0 ? 'Add students first to shuffle roles' : 'Shuffle roles randomly'}
           >
             <Shuffle className={`w-3.5 h-3.5 ${isShuffling ? 'animate-spin' : ''}`} />
             <span>{isShuffling ? 'Shuffling...' : 'Shuffle Roles'}</span>
@@ -150,16 +215,34 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {activeTab === 'roster' ? (
             <div className="space-y-3">
+              {teammates.length === 0 && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs text-center space-y-2">
+                  <p className="font-bold">No students in roster (0 roles assigned)</p>
+                  <p className="text-[11px] text-amber-800">
+                    Go to the <strong>Teammates</strong> tab to add students, or click below to load sample medical students:
+                  </p>
+                  <button
+                    onClick={handleLoadSampleRoster}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs transition-all"
+                  >
+                    + Load Sample 8-Member Team
+                  </button>
+                </div>
+              )}
+
               {TEAM_ROLES.map((role) => {
-                const assignedStudent = roleAssignments[role.id];
+                const rawAssignee = roleAssignments[role.id];
+                const isAssigned = !!rawAssignee && rawAssignee !== 'Unassigned' && teammates.includes(rawAssignee);
+                const currentVal = isAssigned ? rawAssignee : 'Unassigned';
+
                 return (
                   <div
                     key={role.id}
                     className="p-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 transition-all shadow-xs"
                   >
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-slate-100 text-slate-700">
+                        <div className="p-1.5 rounded-lg bg-slate-100 text-slate-700 shrink-0">
                           {ICON_MAP[role.icon] || <Users className="w-4 h-4" />}
                         </div>
                         <div>
@@ -172,14 +255,25 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
                         </div>
                       </div>
 
-                      {/* Assigned Student Tag */}
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border shrink-0 ${
-                        assignedStudent 
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200' 
-                          : 'bg-slate-100 text-slate-400 border-slate-200'
-                      }`}>
-                        {assignedStudent || 'Unassigned'}
-                      </span>
+                      {/* Dropdown Selector for Exact Assignment */}
+                      <div className="shrink-0">
+                        <select
+                          value={currentVal}
+                          onChange={(e) => handleRoleSelectChange(role.id, e.target.value)}
+                          className={`text-xs font-bold px-2 py-1 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                            isAssigned
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : 'bg-slate-100 text-slate-500 border-slate-200'
+                          }`}
+                        >
+                          <option value="Unassigned">-- Unassigned --</option>
+                          {teammates.map((student) => (
+                            <option key={student} value={student}>
+                              {student}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     {/* Key Duties & Core Question */}
@@ -205,38 +299,72 @@ export const RoleSidebar: React.FC<RoleSidebarProps> = ({
                 />
                 <button
                   type="submit"
-                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs"
+                  disabled={!newName.trim()}
+                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add</span>
                 </button>
               </form>
 
+              {/* Roster Quick Utility Buttons */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={handleLoadSampleRoster}
+                  className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline"
+                >
+                  + Load 8 USIM Students
+                </button>
+
+                {teammates.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearAllStudents}
+                    className="text-[11px] font-bold text-rose-600 hover:text-rose-800 underline"
+                  >
+                    Clear Roster (0 Students)
+                  </button>
+                )}
+              </div>
+
               {/* Teammates List */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">
-                  Current Team Members ({teammates.length})
-                </label>
-                {teammates.map((name, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px]">
-                        {index + 1}
-                      </span>
-                      <span>{name}</span>
-                    </div>
-                    <button
-                      onClick={() => handleRemoveTeammate(index)}
-                      className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
-                      title="Remove student"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700">
+                    Current Team Members ({teammates.length})
+                  </label>
+                  <span className="text-[10px] text-slate-400">
+                    {teammates.length === 0 ? '0 roles will be assigned' : `${Math.min(teammates.length, 8)} of 8 roles will be filled`}
+                  </span>
+                </div>
+
+                {teammates.length === 0 ? (
+                  <div className="p-4 rounded-lg bg-slate-50 border border-dashed border-slate-300 text-center text-xs text-slate-500">
+                    No students added yet. Type a name above or load sample students.
                   </div>
-                ))}
+                ) : (
+                  teammates.map((name, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px]">
+                          {index + 1}
+                        </span>
+                        <span>{name}</span>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveTeammate(index)}
+                        className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
+                        title="Remove student"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

@@ -199,7 +199,18 @@ export default function App() {
   const handleUpdateTeammates = (names: string[]) => {
     setTeammates(names);
     localStorage.setItem('sdl_teammates', JSON.stringify(names));
-    if (roomId) syncToServer({ teammates: names });
+
+    // Automatically clean up any role whose assigned student is no longer in the list
+    const updatedAssignments = { ...roleAssignments };
+    Object.keys(updatedAssignments).forEach((k) => {
+      if (updatedAssignments[k] !== 'Unassigned' && !names.includes(updatedAssignments[k])) {
+        updatedAssignments[k] = 'Unassigned';
+      }
+    });
+    setRoleAssignments(updatedAssignments);
+    localStorage.setItem('sdl_role_assignments', JSON.stringify(updatedAssignments));
+
+    if (roomId) syncToServer({ teammates: names, roleAssignments: updatedAssignments });
   };
 
   const handleUpdateAssignments = (assignments: Record<string, string>) => {
@@ -209,10 +220,26 @@ export default function App() {
   };
 
   const handleShuffleRoles = () => {
+    if (teammates.length === 0) {
+      const emptyAssignments: Record<string, string> = {};
+      TEAM_ROLES.forEach((role) => {
+        emptyAssignments[role.id] = 'Unassigned';
+      });
+      setRoleAssignments(emptyAssignments);
+      localStorage.setItem('sdl_role_assignments', JSON.stringify(emptyAssignments));
+      if (roomId) syncToServer({ roleAssignments: emptyAssignments });
+      return;
+    }
+
     const shuffledNames = [...teammates].sort(() => Math.random() - 0.5);
     const newAssignments: Record<string, string> = {};
     TEAM_ROLES.forEach((role, idx) => {
-      newAssignments[role.id] = shuffledNames[idx % shuffledNames.length] || 'Unassigned';
+      // Tally strictly with number of students (if 3 students, only 3 roles assigned)
+      if (idx < shuffledNames.length) {
+        newAssignments[role.id] = shuffledNames[idx];
+      } else {
+        newAssignments[role.id] = 'Unassigned';
+      }
     });
     setRoleAssignments(newAssignments);
     localStorage.setItem('sdl_role_assignments', JSON.stringify(newAssignments));
@@ -360,6 +387,7 @@ export default function App() {
           }
         }}
         roleAssignments={roleAssignments}
+        teammates={teammates}
         roles={TEAM_ROLES}
         roomId={roomId}
         isCloudSynced={!!roomId}

@@ -76,7 +76,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
   };
 
   const assignedCount = Object.keys(roleAssignments).filter(
-    (k) => !!roleAssignments[k] && roleAssignments[k] !== 'Unassigned'
+    (k) => !!roleAssignments[k] && roleAssignments[k] !== 'Unassigned' && teammates.includes(roleAssignments[k])
   ).length;
 
   return (
@@ -94,10 +94,17 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                 <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
                   Step 1 • Initial Setup
                 </span>
-                <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {assignedCount} / 8 Roles Assigned
-                </span>
+                {teammates.length === 0 ? (
+                  <span className="text-xs text-amber-400 font-bold flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    0 / 8 Roles Assigned (Add students)
+                  </span>
+                ) : (
+                  <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {assignedCount} / 8 Roles Assigned ({teammates.length} student{teammates.length === 1 ? '' : 's'})
+                  </span>
+                )}
               </div>
               <h2 className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5 mt-0.5">
                 <span>Student Roster &amp; Rotating Role Shuffler</span>
@@ -122,8 +129,9 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
             <button
               id="team-setup-shuffle-btn"
               onClick={handleShuffleClick}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/30"
-              title="Randomly shuffle roles among all listed students"
+              disabled={teammates.length === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={teammates.length === 0 ? 'Add students first to shuffle roles' : 'Randomly shuffle roles among all listed students'}
             >
               <Shuffle className={`w-3.5 h-3.5 ${isShufflingAnim ? 'animate-spin' : ''}`} />
               <span>{isShufflingAnim ? 'Shuffling...' : '🎲 Shuffle Roles'}</span>
@@ -155,8 +163,9 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
           <div className="mt-3 pt-3 border-t border-indigo-900/50">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
               {TEAM_ROLES.map((role, idx) => {
-                const assignedStudent = roleAssignments[role.id] || 'Unassigned';
-                const isAssigned = assignedStudent !== 'Unassigned';
+                const rawAssignee = roleAssignments[role.id];
+                const isAssigned = !!rawAssignee && rawAssignee !== 'Unassigned' && teammates.includes(rawAssignee);
+                const assignedStudent = isAssigned ? rawAssignee : 'Unassigned';
                 const isFlipped = !!flippedCards[role.id];
 
                 return (
@@ -202,9 +211,15 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                           <span className="text-[9px] text-slate-400 block uppercase font-bold tracking-wider">
                             Assigned to:
                           </span>
-                          <div className="text-xs font-black text-emerald-300 truncate mt-0.5" title={assignedStudent}>
-                            {assignedStudent}
-                          </div>
+                          {isAssigned ? (
+                            <div className="text-xs font-black text-emerald-300 truncate mt-0.5" title={assignedStudent}>
+                              {assignedStudent}
+                            </div>
+                          ) : (
+                            <div className="text-xs font-semibold text-amber-300/80 italic truncate mt-0.5">
+                              Unassigned
+                            </div>
+                          )}
 
                           <div className="mt-2 flex items-center justify-between text-[9px] text-indigo-300 font-semibold group-hover:text-indigo-200">
                             <span className="flex items-center gap-1">

@@ -24,6 +24,7 @@ interface HeaderNavProps {
   onOpenAiTutor: () => void;
   onPrintReport: () => void;
   onResetCase: () => void;
+  teammates: string[];
   roleAssignments: Record<string, string>;
   roles: TeamRole[];
   roomId: string | null;
@@ -44,6 +45,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenAiTutor,
   onPrintReport,
   onResetCase,
+  teammates,
   roleAssignments,
   roles,
   roomId,
@@ -61,7 +63,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const assignedCount = Object.keys(roleAssignments).length;
+  const assignedCount = Object.keys(roleAssignments).filter(
+    (k) => !!roleAssignments[k] && roleAssignments[k] !== 'Unassigned' && teammates.includes(roleAssignments[k])
+  ).length;
 
   return (
     <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
