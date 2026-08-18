@@ -2,19 +2,43 @@
 
 /* Print Styling Rules */
 @media print {
-  /* Hide all app UI chrome outside the print document */
-  body {
+  /* Ensure page setup is clean */
+  @page {
+    margin: 12mm 15mm;
+    size: A4 portrait;
+  }
+
+  /* Reset body and html */
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Prevent background app from rendering or creating multi-page blanks */
-  #root > div:not(.print-container) {
+  /* Hide screen-only app content when printing report modal */
+  body.printing-report #screen-app-content {
     display: none !important;
+  }
+
+  /* Ensure print document is visible and fills layout */
+  .printable-document-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+    background: #ffffff !important;
   }
 
   /* Clean page breaks */

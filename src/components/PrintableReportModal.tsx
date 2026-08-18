@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SdlCase, TeamReflection, TeamRole } from '../types';
 import { TEAM_ROLES } from '../data/roles';
 import { Printer, X, CheckCircle2, ShieldCheck, UserCheck } from 'lucide-react';
@@ -22,6 +22,17 @@ export const PrintableReportModal: React.FC<PrintableReportModalProps> = ({
   teammates,
   reflection
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('printing-report');
+    } else {
+      document.body.classList.remove('printing-report');
+    }
+    return () => {
+      document.body.classList.remove('printing-report');
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handlePrint = () => {
@@ -30,7 +41,7 @@ export const PrintableReportModal: React.FC<PrintableReportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto print:p-0 print:m-0 print:static print:bg-white print:backdrop-blur-none print:z-auto print:overflow-visible print:block">
-      <div className="bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:border-none print:max-w-none print:max-h-none print:rounded-none print:overflow-visible print:block">
+      <div className="printable-document-container bg-white w-full max-w-4xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:border-none print:max-w-none print:max-h-none print:rounded-none print:overflow-visible print:block">
         
         {/* Modal Top Control Bar (Hidden during window.print) */}
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between print:hidden">

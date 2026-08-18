@@ -223,110 +223,112 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
       
-      {/* 1. Header Navigation Bar */}
-      <HeaderNav
-        currentCase={currentCase}
-        onSelectCase={handleSelectCase}
-        onOpenRoleShuffle={() => setIsRoleSidebarOpen(true)}
-        onOpenAiTutor={() => {
-          setAiTutorStageKey(activeStage.stageKey);
-          setIsAiTutorOpen(true);
-        }}
-        onPrintReport={() => setIsPrintModalOpen(true)}
-        onResetCase={() => {
-          if (window.confirm('Reset all team answers and locks for this case?')) {
-            setStageAnswers({});
-            setUnlockedStages([0]);
-            setCurrentStageIndex(0);
-            setReflection(DEFAULT_REFLECTION);
-            localStorage.removeItem(`sdl_answers_${currentCase.id}`);
-            localStorage.removeItem(`sdl_unlocked_${currentCase.id}`);
-            localStorage.removeItem(`sdl_reflection_${currentCase.id}`);
-          }
-        }}
-        roleAssignments={roleAssignments}
-        teammates={teammates}
-        roles={TEAM_ROLES}
-        timerSeconds={timerSeconds}
-        isTimerRunning={isTimerRunning}
-        onToggleTimer={() => setIsTimerRunning(!isTimerRunning)}
-        onResetTimer={() => {
-          setTimerSeconds(activeStage.suggestedDurationMinutes * 60);
-          setIsTimerRunning(false);
-        }}
-        onAddTimerMinute={() => setTimerSeconds((prev) => prev + 60)}
-        completionRate={completionRate}
-      />
+      <div id="screen-app-content" className="flex flex-col flex-1">
+        {/* 1. Header Navigation Bar */}
+        <HeaderNav
+          currentCase={currentCase}
+          onSelectCase={handleSelectCase}
+          onOpenRoleShuffle={() => setIsRoleSidebarOpen(true)}
+          onOpenAiTutor={() => {
+            setAiTutorStageKey(activeStage.stageKey);
+            setIsAiTutorOpen(true);
+          }}
+          onPrintReport={() => setIsPrintModalOpen(true)}
+          onResetCase={() => {
+            if (window.confirm('Reset all team answers and locks for this case?')) {
+              setStageAnswers({});
+              setUnlockedStages([0]);
+              setCurrentStageIndex(0);
+              setReflection(DEFAULT_REFLECTION);
+              localStorage.removeItem(`sdl_answers_${currentCase.id}`);
+              localStorage.removeItem(`sdl_unlocked_${currentCase.id}`);
+              localStorage.removeItem(`sdl_reflection_${currentCase.id}`);
+            }
+          }}
+          roleAssignments={roleAssignments}
+          teammates={teammates}
+          roles={TEAM_ROLES}
+          timerSeconds={timerSeconds}
+          isTimerRunning={isTimerRunning}
+          onToggleTimer={() => setIsTimerRunning(!isTimerRunning)}
+          onResetTimer={() => {
+            setTimerSeconds(activeStage.suggestedDurationMinutes * 60);
+            setIsTimerRunning(false);
+          }}
+          onAddTimerMinute={() => setTimerSeconds((prev) => prev + 60)}
+          completionRate={completionRate}
+        />
 
-      {/* Step 1: Mandatory Student Roster & Rotating Role Setup Banner */}
-      <TeamSetupBanner
-        teammates={teammates}
-        roleAssignments={roleAssignments}
-        onShuffleRoles={handleShuffleRoles}
-        onOpenManageModal={() => setIsRoleSidebarOpen(true)}
-      />
+        {/* Step 1: Mandatory Student Roster & Rotating Role Setup Banner */}
+        <TeamSetupBanner
+          teammates={teammates}
+          roleAssignments={roleAssignments}
+          onShuffleRoles={handleShuffleRoles}
+          onOpenManageModal={() => setIsRoleSidebarOpen(true)}
+        />
 
-      {/* 2. Sticky Clinical Stem Banner */}
-      <ClinicalStemBanner
-        stem={currentCase.stem}
-        weekNumber={currentCase.week}
-        topicCategory={currentCase.topicCategory}
-      />
+        {/* 2. Sticky Clinical Stem Banner */}
+        <ClinicalStemBanner
+          stem={currentCase.stem}
+          weekNumber={currentCase.week}
+          topicCategory={currentCase.topicCategory}
+        />
 
-      {/* 3. Stage Stepper Navigation Bar */}
-      <StageStepper
-        stages={currentCase.stages}
-        currentStageIndex={currentStageIndex}
-        unlockedStages={unlockedStages}
-        stageAnswers={stageAnswers}
-        onSelectStage={handleSelectStage}
-      />
+        {/* 3. Stage Stepper Navigation Bar */}
+        <StageStepper
+          stages={currentCase.stages}
+          currentStageIndex={currentStageIndex}
+          unlockedStages={unlockedStages}
+          stageAnswers={stageAnswers}
+          onSelectStage={handleSelectStage}
+        />
 
-      {/* 4. Main Active Stage Workspace */}
-      <main className="flex-1 pb-16">
-        {isWrapUp ? (
-          <WrapUpScreen
-            currentCase={currentCase}
-            stageAnswers={stageAnswers}
-            roleAssignments={roleAssignments}
-            reflection={reflection}
-            onUpdateReflection={handleUpdateReflection}
-            onPrintReport={() => setIsPrintModalOpen(true)}
-          />
-        ) : (
-          <StageCommitmentView
-            stage={activeStage}
-            stageIndex={currentStageIndex}
-            totalStages={currentCase.stages.length}
-            teamAnswer={stageAnswers[activeStage.stageKey] || ''}
-            onSaveAnswer={handleSaveStageAnswer}
-            isUnlocked={unlockedStages.includes(currentStageIndex)}
-            onUnlockNextStage={() => {
-              if (currentStageIndex + 1 < currentCase.stages.length) {
-                const nextIdx = currentStageIndex + 1;
-                if (!unlockedStages.includes(nextIdx)) {
-                  setUnlockedStages([...unlockedStages, nextIdx]);
+        {/* 4. Main Active Stage Workspace */}
+        <main className="flex-1 pb-16">
+          {isWrapUp ? (
+            <WrapUpScreen
+              currentCase={currentCase}
+              stageAnswers={stageAnswers}
+              roleAssignments={roleAssignments}
+              reflection={reflection}
+              onUpdateReflection={handleUpdateReflection}
+              onPrintReport={() => setIsPrintModalOpen(true)}
+            />
+          ) : (
+            <StageCommitmentView
+              stage={activeStage}
+              stageIndex={currentStageIndex}
+              totalStages={currentCase.stages.length}
+              teamAnswer={stageAnswers[activeStage.stageKey] || ''}
+              onSaveAnswer={handleSaveStageAnswer}
+              isUnlocked={unlockedStages.includes(currentStageIndex)}
+              onUnlockNextStage={() => {
+                if (currentStageIndex + 1 < currentCase.stages.length) {
+                  const nextIdx = currentStageIndex + 1;
+                  if (!unlockedStages.includes(nextIdx)) {
+                    setUnlockedStages([...unlockedStages, nextIdx]);
+                  }
                 }
-              }
-            }}
-            onGoToNextStage={() => {
-              if (currentStageIndex < currentCase.stages.length - 1) {
-                handleSelectStage(currentStageIndex + 1);
-              }
-            }}
-            onGoToPrevStage={() => {
-              if (currentStageIndex > 0) {
-                handleSelectStage(currentStageIndex - 1);
-              }
-            }}
-            roleAssignments={roleAssignments}
-            onOpenAiTutorWithStage={(stageKey) => {
-              setAiTutorStageKey(stageKey);
-              setIsAiTutorOpen(true);
-            }}
-          />
-        )}
-      </main>
+              }}
+              onGoToNextStage={() => {
+                if (currentStageIndex < currentCase.stages.length - 1) {
+                  handleSelectStage(currentStageIndex + 1);
+                }
+              }}
+              onGoToPrevStage={() => {
+                if (currentStageIndex > 0) {
+                  handleSelectStage(currentStageIndex - 1);
+                }
+              }}
+              roleAssignments={roleAssignments}
+              onOpenAiTutorWithStage={(stageKey) => {
+                setAiTutorStageKey(stageKey);
+                setIsAiTutorOpen(true);
+              }}
+            />
+          )}
+        </main>
+      </div>
 
       {/* 5. Drawers and Modals */}
       <RoleSidebar
