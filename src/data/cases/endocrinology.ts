@@ -9,7 +9,7 @@ export const ENDOCRINOLOGY_CASE: SdlCase = {
   subTitle: 'Diabetic Ketoacidosis (DKA) vs Hyperosmolar Hyperglycaemic State (HHS) & Acute Diabetic Emergencies',
   assignmentName: 'DKA Emergency Protocol, Anion Gap Calculation & Potassium Replacement Rules',
   stem: {
-    patientName: 'Cik Nur Aina binti Zulkifli',
+    patientName: 'Miss Priya a/p Shanmugam',
     age: 19,
     gender: 'Female',
     occupation: 'College student',
@@ -205,26 +205,26 @@ export const ENDOCRINOLOGY_CASE: SdlCase = {
     {
       stageKey: 'wrapup_reflection',
       stageNumber: 8,
-      title: 'Wrap-Up, Sick Day Rules, Islamic Care & Reflection',
+      title: 'Wrap-Up, Sick Day Rules, Patient-Centred Care & Reflection',
       shortTitle: 'Wrap-Up',
       suggestedDurationMinutes: 7,
       primaryRole: 'scribe',
-      prompt: 'Formulate "Sick Day Rules" education, Ramadan fasting assessment in T1DM, and Section 8 group reflection.',
+      prompt: 'Formulate "Sick Day Rules" education, fasting risk assessment in T1DM, and Section 8 group reflection.',
       expertBenchmark: {
-        title: 'Diabetic Education & Islamic Bioethics',
-        summary: 'Structured Sick Day Management, Ramadan High-Risk Category assessment, and metacognitive debriefing.',
+        title: 'Diabetic Education & Holistic Patient Care',
+        summary: 'Structured Sick Day Management, High-Risk Category assessment during fasting, and metacognitive debriefing.',
         keyPoints: [
           'Sick Day Rules (NEVER OMIT INSULIN!): Check blood glucose and blood ketones every 2-4 hours. Continue basal insulin even if vomiting. Drink plenty of fluids (sips of water, broth, or sweet drinks if blood glucose is low). Contact medical team immediately if vomiting persists > 4 hours or ketones > 1.5 mmol/L.',
-          'Ramadan Fasting Risk Stratification (IDF-DAR Guidelines): Type 1 DM with poor control and history of recent DKA is categorized as VERY HIGH RISK (Red Category). Fasting is religiously exempt and medically contraindicated to preserve life.'
+          'Fasting Risk Stratification in T1DM (IDF Guidelines): Type 1 DM with poor control and history of recurrent DKA is categorized as VERY HIGH RISK. Extended fasts (intermittent, religious or cultural) are medically unsafe and contraindicated to prevent fatal ketoacidosis.'
         ]
       }
     }
   ],
   islamicConsiderations: {
-    rukhsahSolat: 'Severe metabolic acidosis and delirium exempt the patient from prayer while unconscious. During recovery with IV cannula and catheter, perform prayer in sitting or lying posture with Tayammum if needed.',
-    fastingRamadanGuidance: 'Type 1 Diabetes Mellitus with history of recurrent DKA falls under the International Diabetes Federation & DAR "Very High Risk" category. Islamic law (Shariah) mandates preserving health (Hifz an-Nafs); fasting is medically unsafe and exempted; fidyah applies.',
-    halalMedicationAndDiet: 'Recombinant human insulin and electrolyte infusions are halal. Explain the medical necessity of life-saving intravenous therapy.',
-    familyCommunicationAndBioethics: 'Counsel Cik Aina and her parents on avoiding guilt/stigma around diabetes, emphasizing empowered self-monitoring and hostel safety-netting.',
+    rukhsahSolat: 'Severe metabolic acidosis and delirium require intensive medical monitoring in high dependency. During recovery with IV infusion lines and urinary catheter, encourage supported resting postures with minimal exertion.',
+    fastingRamadanGuidance: 'Type 1 Diabetes Mellitus with history of recurrent DKA falls under the International Diabetes Federation "Very High Risk" category. Fasting is medically contraindicated; prioritize health and life preservation through regular balanced meals and basal-bolus insulin.',
+    halalMedicationAndDiet: 'Recombinant human insulin and electrolyte infusions are essential life-saving therapies. Provide clear dietary education on carbohydrate counting suited for Malaysian Indian staples (thosai, idli, dhal) to optimize glycemic control.',
+    familyCommunicationAndBioethics: 'Counsel Miss Priya and her parents on avoiding guilt or stigma around diabetes, emphasizing empowered self-monitoring, continuous glucose monitoring (CGM), and campus hostel safety-netting.',
     patientEducationAndHolisticWellness: 'Reinforce "Sick Day Rules" and provide a blood ketone meter for early home detection of ketosis.'
   },
   keyLearningPoints: [

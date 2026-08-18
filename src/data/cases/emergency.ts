@@ -9,16 +9,16 @@ export const EMERGENCY_CASE: SdlCase = {
   subTitle: 'Undifferentiated Shock / Anaphylactic Shock with Angioedema vs Status Asthmaticus & Resuscitation Algorithm',
   assignmentName: 'Emergency Shock & Status Resuscitation Algorithm (IM Adrenaline Dosing)',
   stem: {
-    patientName: 'Encik Razak bin Mahmud',
+    patientName: 'Mr. Ganesan a/l Ramasamy',
     age: 45,
     gender: 'Male',
-    occupation: 'Oil palm plantation smallholder',
+    occupation: 'Oil palm plantation smallholder in Banting',
     setting: 'Emergency Department Red Zone (Resuscitation Bay)',
     triageCategory: 'Red (Resuscitation)',
     presentingComplaint: 'Sudden onset difficulty breathing, audible inspiratory stridor, severe dizziness, and extensive intensely itchy swelling of face and lips 20 minutes after being stung by hornets.',
     historyOfPresentingIllness: [
       'Onset: 20 minutes ago while clearing undergrowth in his palm oil estate, disturbed a hornet/wasp nest and sustained >6 stings on his neck, arms, and upper torso.',
-      'Airway & Breathing: Within 5 minutes, felt his throat closing up ("rasa tekak tercekik"), difficulty swallowing his saliva, high-pitched whistling noise on inspiration (stridor), and generalized chest tightness with severe expiratory wheeze.',
+      'Airway & Breathing: Within 5 minutes, felt his throat closing up ("felt like throat was choking"), difficulty swallowing his saliva, high-pitched whistling noise on inspiration (stridor), and generalized chest tightness with severe expiratory wheeze.',
       'Skin: Rapidly broke out in raised, intensely pruritic hives (urticaria) spreading over his entire body, with massive swelling of upper/lower lips and eyelids (angioedema).',
       'Circulation: Felt suddenly faint, cold, clammy, and collapsed to his knees in the estate. Rushed immediately by his coworkers in a pickup truck.'
     ],
@@ -192,27 +192,27 @@ export const EMERGENCY_CASE: SdlCase = {
     {
       stageKey: 'wrapup_reflection',
       stageNumber: 8,
-      title: 'Wrap-Up, Auto-Injector Training, Islamic Care & Reflection',
+      title: 'Wrap-Up, Auto-Injector Training, Holistic Care & Reflection',
       shortTitle: 'Wrap-Up',
       suggestedDurationMinutes: 7,
       primaryRole: 'scribe',
-      prompt: 'Demonstrate the 4-step EpiPen auto-injector technique, venom allergy counseling, Islamic bioethics of emergency medical intervention, and complete the Section 8 reflection.',
+      prompt: 'Demonstrate the 4-step EpiPen auto-injector technique, venom allergy counseling, emergency preparedness, and complete the Section 8 reflection.',
       expertBenchmark: {
         title: 'Comprehensive Discharge, EpiPen & Bioethics',
         summary: 'Hands-on EpiPen technique ("Blue to the sky, orange to the thigh"), emergency preparedness, and metacognitive reflection.',
         keyPoints: [
           'EpiPen Auto-Injector Technique: 1. Form a fist around unit with orange tip pointing down; 2. Pull off blue safety release cap ("Blue to the sky"); 3. Hold orange tip firmly against outer mid-thigh at 90-degree angle until a "click" is heard ("Orange to the thigh"); 4. Hold in place for 3 full seconds, then massage area for 10 seconds. Call 999 immediately.',
-          'Islamic Bioethics in Resuscitation (Hifz an-Nafs): Preserving human life is the highest maqasid of Shariah; immediate emergency administration of adrenaline is a religious and moral obligation.'
+          'Medical Imperative in Resuscitation: Immediate emergency administration of adrenaline is the essential standard of care for anaphylactic survival; educating workplace peers is vital.'
         ]
       }
     }
   ],
   islamicConsiderations: {
-    rukhsahSolat: 'During the acute shock and post-resuscitation observation period, the patient is excused from standard postures and may perform prayer while seated or resting once vital signs and sensorium stabilize.',
-    fastingRamadanGuidance: 'Acute anaphylaxis requiring IV resuscitation and intensive care requires full hydration and close monitoring; fasting is strictly excused during acute illness.',
-    halalMedicationAndDiet: 'Adrenaline, hydrocortisone, antihistamines, and crystalloid fluids are life-saving and halal. Reassure the patient of the spiritual merit of seeking prompt emergency care (Berubat adalah sunnah).',
-    familyCommunicationAndBioethics: 'Counsel the plantation worker and his wife on recognizing early anaphylaxis signs and educating co-workers on carrying the EpiPen to the plantation.',
-    patientEducationAndHolisticWellness: 'Teach environmental precautions: avoiding scented products, wearing protective outdoor clothing in plantations, and emergency auto-injector storage away from extreme heat.'
+    rukhsahSolat: 'During the acute shock and post-resuscitation observation period, the patient requires close hemodynamic monitoring; keep patient rested in bed until vital signs and sensorium fully stabilize.',
+    fastingRamadanGuidance: 'Acute anaphylaxis requiring IV resuscitation and intensive care requires full hydration and close monitoring; strict fasting is medically contraindicated during acute emergency recovery.',
+    halalMedicationAndDiet: 'Adrenaline, hydrocortisone, antihistamines, and crystalloid fluids are life-saving standard pharmaceutical interventions.',
+    familyCommunicationAndBioethics: 'Counsel Mr. Ganesan and his family on recognizing early anaphylaxis signs and educating plantation co-workers on carrying and administering the EpiPen in the estate.',
+    patientEducationAndHolisticWellness: 'Teach environmental precautions: avoiding scented products, wearing protective outdoor clothing in plantations, and emergency auto-injector storage away from vehicle gloveboxes and direct tropical heat.'
   },
   keyLearningPoints: [
     'Intramuscular Adrenaline (0.5 mg IM into the anterolateral mid-thigh) is the FIRST-LINE and ONLY life-saving drug in anaphylaxis; never delay adrenaline for antihistamines or steroids.',

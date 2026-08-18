@@ -9,7 +9,7 @@ export const RESPIRATORY_CASE: SdlCase = {
   subTitle: 'Obstructive Airway Disease / Severe Asthma vs Tension Pneumothorax with Life-Threatening ABG Warning Signs',
   assignmentName: 'Arterial Blood Gas (ABG) Deep-Dive & Acid-Base Compensation',
   stem: {
-    patientName: 'Encik Faris Danial bin Azman',
+    patientName: 'Mr. Rajesh Kumar a/l Subramaniam',
     age: 24,
     gender: 'Male',
     occupation: 'University undergraduate student',
@@ -19,7 +19,7 @@ export const RESPIRATORY_CASE: SdlCase = {
     historyOfPresentingIllness: [
       'Onset: Gradual chest tightness and nocturnal cough for 3 days following exposure to cat dander at a friend’s hostel, with severe acute deterioration 4 hours ago.',
       'Inhaler use: Emptied his Salbutamol (Ventolin) MDI canister at home (took over 20 puffs in 2 hours) with no noticeable relief.',
-      'Severity: Unable to speak in full sentences; can only utter single words ("panik... tak boleh... nafas").',
+      'Severity: Unable to speak in full sentences; can only utter single words ("panicking... cannot... breathe").',
       'Posture: Leaning forward in tripod position, using sternocleidomastoid and scalene accessory muscles.'
     ],
     systemicReview: [
@@ -199,27 +199,27 @@ export const RESPIRATORY_CASE: SdlCase = {
     {
       stageKey: 'wrapup_reflection',
       stageNumber: 8,
-      title: 'Wrap-Up, Inhaler Technique, Islamic Care & Reflection',
+      title: 'Wrap-Up, Inhaler Technique, Holistic Care & Reflection',
       shortTitle: 'Wrap-Up',
       suggestedDurationMinutes: 7,
       primaryRole: 'scribe',
-      prompt: 'Formulate patient education on SMART (Single Inhaler Maintenance & Reliever Therapy), Ramadan fasting guidance, and complete the group reflection.',
+      prompt: 'Formulate patient education on SMART (Single Inhaler Maintenance & Reliever Therapy), trigger avoidance in university hostels, and complete the group reflection.',
       expertBenchmark: {
-        title: 'Comprehensive Discharge Plan & Spiritual Nuances',
-        summary: 'SMART strategy with Inhaled Corticosteroid-Formoterol, Asthma Action Plan, Inhaler Spacer training, and Ramadan fatwa awareness.',
+        title: 'Comprehensive Discharge Plan & Patient-Centred Care',
+        summary: 'SMART strategy with Inhaled Corticosteroid-Formoterol, Written Asthma Action Plan, Inhaler Spacer training, and trigger mitigation.',
         keyPoints: [
           'SMART Approach (GINA Guidelines): Transition patient to Budesonide/Formoterol MDI/DPI as both daily controller AND as-needed reliever to prevent future fatal attacks.',
           'Written Asthma Action Plan (WAAP): Clear traffic-light zones (Green/Yellow/Red) with PEFR triggers.',
-          'Ramadan Inhaler Ruling: Contemporary Islamic bioethics consensus (National Fatwa Council / IMAM) affirms that medicinal inhalers (MDI) do not invalidate the fast because the gas/aerosol goes primarily to the lungs, not nutrition to the stomach. However, during acute exacerbations, breaking fast is permissible under medical necessity.'
+          'Trigger & Allergy Mitigation: Complete avoidance of direct cat exposure, dust mite mattress encasings for hostel room, and carry reliever inhaler during rugby training.'
         ]
       }
     }
   ],
   islamicConsiderations: {
-    rukhsahSolat: 'During the acute breathless state with oxygen mask and chest tightness, the patient may pray in sitting or reclining position. Combining Dhuhr-Asr or Maghrib-Isha (Jamak Shuri/Suriy) is allowed when acute medical therapy is ongoing.',
-    fastingRamadanGuidance: 'Medical Inhaler Use during Fasting: According to the Malaysian National Fatwa Council and Islamic Medical Association of Malaysia (IMAM), using an asthma inhaler (MDI) does NOT break the fast as it delivers microscopic aerosol to the bronchial tree for respiration rather than gut nourishment. However, during severe exacerbations requiring IV fluids and nebulization, breaking the fast is legally sanctioned to preserve life.',
-    halalMedicationAndDiet: 'All standard asthma medications (Salbutamol, Budesonide, Ipratropium, Hydrocortisone, MgSO4) are completely halal and permissible.',
-    familyCommunicationAndBioethics: 'Educate the young student and his parents on asthma triggers, the vital necessity of daily preventer adherence, and warning signs of near-fatal asthma.',
+    rukhsahSolat: 'During the acute breathless state with high-flow oxygen mask, patient requires high Fowler posture in bed with continuous monitoring. Avoid forced exertion until peak flow stabilizes.',
+    fastingRamadanGuidance: 'Medical Inhaler Guidance & Acute Exemption: When patients observe religious fasts, modern consensus affirms that standard inhaler puffs for chronic control do not invalidate fasting. However, during acute severe respiratory failure requiring nebulizations and IV steroids, fasting is medically contraindicated to preserve life.',
+    halalMedicationAndDiet: 'All standard asthma medications (Salbutamol, Budesonide, Ipratropium, Hydrocortisone, MgSO4) are completely approved for clinical use with no restricted ingredients.',
+    familyCommunicationAndBioethics: 'Educate the young university student and his parents on asthma triggers, the vital necessity of daily preventer adherence, and warning signs of near-fatal asthma.',
     patientEducationAndHolisticWellness: 'Teach correct MDI with Volumatic Spacer technique (one puff at a time, slow deep breath, 10-second breath hold, rinse mouth after steroid).'
   },
   keyLearningPoints: [

@@ -17,11 +17,11 @@ import {
   HeartHandshake,
   FileText,
   ShieldAlert,
-  HelpCircle,
   RotateCw,
   Info,
-  Check
+  Maximize2
 } from 'lucide-react';
+import { RoleDetailModal } from './RoleDetailModal';
 
 interface TeamSetupBannerProps {
   teammates: string[];
@@ -51,6 +51,9 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
   const [isShufflingAnim, setIsShufflingAnim] = useState<boolean>(false);
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [allFlipped, setAllFlipped] = useState<boolean>(false);
+  
+  // State for expanded zoom / detailed dialog
+  const [selectedRoleForDetail, setSelectedRoleForDetail] = useState<TeamRole | null>(null);
 
   const handleShuffleClick = () => {
     setIsShufflingAnim(true);
@@ -58,7 +61,8 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
     setTimeout(() => setIsShufflingAnim(false), 500);
   };
 
-  const handleCardFlip = (roleId: string) => {
+  const handleCardFlip = (roleId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setFlippedCards((prev) => ({
       ...prev,
       [roleId]: !prev[roleId]
@@ -118,11 +122,11 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
             <button
               id="team-setup-flip-all-btn"
               onClick={handleToggleFlipAll}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 text-indigo-200 hover:text-white text-xs font-bold border border-indigo-500/40 shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-900/70 hover:bg-indigo-800 text-indigo-200 hover:text-white text-xs font-bold border border-indigo-500/40 shadow-xs transition-all cursor-pointer"
               title="Flip all 8 cards to reveal role responsibilities & job duties"
             >
               <RotateCw className="w-3.5 h-3.5 text-indigo-300" />
-              <span>{allFlipped ? 'Show Student Names' : '🔄 Flip All (View Job Duties)'}</span>
+              <span>{allFlipped ? 'Show Student Names' : '🔄 Flip All'}</span>
             </button>
 
             {/* Shuffle Button */}
@@ -130,7 +134,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
               id="team-setup-shuffle-btn"
               onClick={handleShuffleClick}
               disabled={teammates.length === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title={teammates.length === 0 ? 'Add students first to shuffle roles' : 'Randomly shuffle roles among all listed students'}
             >
               <Shuffle className={`w-3.5 h-3.5 ${isShufflingAnim ? 'animate-spin' : ''}`} />
@@ -141,7 +145,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
             <button
               id="team-setup-manage-students-btn"
               onClick={onOpenManageModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold border border-slate-700 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5 text-indigo-400" />
               <span>Edit Students ({teammates.length})</span>
@@ -150,7 +154,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
             {/* Collapse / Expand */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition-colors"
+              className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition-colors cursor-pointer"
               title={isExpanded ? 'Collapse role cards' : 'Expand role cards'}
             >
               {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -158,7 +162,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
           </div>
         </div>
 
-        {/* Expanded 8-Role Grid with 3D Flip Cards */}
+        {/* Expanded 8-Role Grid with 3D Flip Cards & Zoom / Expand Modals */}
         {isExpanded && (
           <div className="mt-3 pt-3 border-t border-indigo-900/50">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
@@ -171,9 +175,7 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                 return (
                   <div
                     key={role.id}
-                    className="perspective-1000 min-h-[170px] cursor-pointer group"
-                    onClick={() => handleCardFlip(role.id)}
-                    title="Click / tap to flip card and view role duties"
+                    className="perspective-1000 min-h-[175px] group relative"
                   >
                     <div
                       className={`relative w-full h-full duration-500 transform-style-3d transition-transform ${
@@ -182,7 +184,8 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                     >
                       {/* FRONT OF CARD: Student Assignment View */}
                       <div
-                        className={`absolute inset-0 w-full h-full rounded-xl border p-3 flex flex-col justify-between backface-hidden transition-all shadow-sm ${
+                        onClick={(e) => handleCardFlip(role.id, e)}
+                        className={`absolute inset-0 w-full h-full rounded-xl border p-3 flex flex-col justify-between backface-hidden transition-all shadow-sm cursor-pointer ${
                           isAssigned
                             ? 'bg-slate-800/95 border-indigo-500/50 hover:border-indigo-400'
                             : 'bg-slate-800/50 border-slate-700 text-slate-400'
@@ -195,9 +198,23 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                               {ICON_MAP[role.icon] || <UserCheck className="w-3.5 h-3.5" />}
                               <span className="truncate">{role.shortName}</span>
                             </span>
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-700/80 text-slate-300">
-                              #{idx + 1}
-                            </span>
+                            
+                            <div className="flex items-center gap-1">
+                              {/* Zoom / Expand Button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedRoleForDetail(role);
+                                }}
+                                title="Expand and zoom role duties in a readable popup"
+                                className="p-1 rounded bg-indigo-900/60 hover:bg-indigo-600 text-indigo-200 hover:text-white transition-colors cursor-pointer"
+                              >
+                                <Maximize2 className="w-3 h-3" />
+                              </button>
+                              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-700/80 text-slate-300">
+                                #{idx + 1}
+                              </span>
+                            </div>
                           </div>
 
                           {/* Full Role Name */}
@@ -224,9 +241,18 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                           <div className="mt-2 flex items-center justify-between text-[9px] text-indigo-300 font-semibold group-hover:text-indigo-200">
                             <span className="flex items-center gap-1">
                               <RotateCw className="w-2.5 h-2.5" />
-                              <span>Flip for duties</span>
+                              <span>Flip card</span>
                             </span>
-                            <span className="text-slate-500">&rarr;</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedRoleForDetail(role);
+                              }}
+                              className="text-amber-300 hover:text-amber-200 font-bold underline"
+                              title="Open readable box"
+                            >
+                              Expand
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -240,12 +266,28 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                           <div className="flex items-center justify-between border-b border-indigo-800/80 pb-1 mb-1.5">
                             <span className="text-[10px] font-bold text-amber-300 uppercase flex items-center gap-1 truncate">
                               <Info className="w-3 h-3 text-amber-400 shrink-0" />
-                              <span>Job: {role.shortName}</span>
+                              <span>{role.shortName}</span>
                             </span>
-                            <span className="text-[9px] text-indigo-300 flex items-center gap-0.5 font-bold shrink-0">
-                              <RotateCw className="w-2.5 h-2.5" />
-                              Flip
-                            </span>
+                            
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedRoleForDetail(role);
+                                }}
+                                title="Expand to full reading view"
+                                className="p-0.5 rounded bg-indigo-800 hover:bg-indigo-600 text-indigo-100 transition-colors cursor-pointer"
+                              >
+                                <Maximize2 className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={(e) => handleCardFlip(role.id, e)}
+                                className="text-[9px] text-indigo-300 hover:text-white flex items-center gap-0.5 font-bold shrink-0 cursor-pointer"
+                              >
+                                <RotateCw className="w-2.5 h-2.5" />
+                                Flip
+                              </button>
+                            </div>
                           </div>
 
                           {/* Description */}
@@ -268,11 +310,20 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
                           </div>
                         </div>
 
-                        {/* Cardinal Key Question */}
-                        <div className="mt-1.5 pt-1 border-t border-indigo-900/60">
-                          <p className="text-[8.5px] italic text-emerald-300 leading-tight line-clamp-2">
+                        {/* Cardinal Key Question & Expand CTA */}
+                        <div className="mt-1.5 pt-1 border-t border-indigo-900/60 flex items-center justify-between gap-1">
+                          <p className="text-[8.5px] italic text-emerald-300 leading-tight truncate">
                             &ldquo;{role.keyQuestion}&rdquo;
                           </p>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRoleForDetail(role);
+                            }}
+                            className="text-[9px] font-bold text-amber-300 hover:text-amber-200 underline shrink-0 cursor-pointer"
+                          >
+                            Zoom
+                          </button>
                         </div>
                       </div>
 
@@ -286,18 +337,26 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                 <span>
-                  <strong>Tip for Students:</strong> Click/tap any card to flip between the assigned student and their exact job responsibilities during this stage.
+                  <strong>Tip for Students:</strong> Click/tap <strong>&ldquo;Expand&rdquo;</strong> or the <strong>Zoom (<Maximize2 className="w-3 h-3 inline mx-0.5" />)</strong> icon on any card to open a full-size readable box with comprehensive clinical duties and Socratic questions.
                 </span>
               </span>
               <button
                 onClick={onOpenManageModal}
-                className="text-indigo-300 hover:text-indigo-100 underline font-semibold mt-1 sm:mt-0"
+                className="text-indigo-300 hover:text-indigo-100 underline font-semibold mt-1 sm:mt-0 cursor-pointer"
               >
-                View full role descriptions &amp; responsibilities &rarr;
+                View all in Roster Manager &rarr;
               </button>
             </div>
           </div>
         )}
+
+        {/* Zoomed / Expanded Modal for Readability */}
+        <RoleDetailModal
+          role={selectedRoleForDetail}
+          assignedStudent={selectedRoleForDetail ? roleAssignments[selectedRoleForDetail.id] : undefined}
+          onClose={() => setSelectedRoleForDetail(null)}
+        />
+
       </div>
     </div>
   );

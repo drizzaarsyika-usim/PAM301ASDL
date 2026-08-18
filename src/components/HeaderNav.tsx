@@ -7,12 +7,8 @@ import {
   Play, 
   Pause, 
   RotateCcw, 
-  Cloud, 
-  CloudOff, 
   Printer, 
   Sparkles,
-  BookOpen,
-  CheckCircle2,
   ChevronDown
 } from 'lucide-react';
 
@@ -20,15 +16,12 @@ interface HeaderNavProps {
   currentCase: SdlCase;
   onSelectCase: (c: SdlCase) => void;
   onOpenRoleShuffle: () => void;
-  onOpenCloudSync: () => void;
   onOpenAiTutor: () => void;
   onPrintReport: () => void;
   onResetCase: () => void;
   teammates: string[];
   roleAssignments: Record<string, string>;
   roles: TeamRole[];
-  roomId: string | null;
-  isCloudSynced: boolean;
   timerSeconds: number;
   isTimerRunning: boolean;
   onToggleTimer: () => void;
@@ -41,15 +34,12 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   currentCase,
   onSelectCase,
   onOpenRoleShuffle,
-  onOpenCloudSync,
   onOpenAiTutor,
   onPrintReport,
   onResetCase,
   teammates,
   roleAssignments,
   roles,
-  roomId,
-  isCloudSynced,
   timerSeconds,
   isTimerRunning,
   onToggleTimer,
@@ -123,7 +113,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             id="timer-play-pause-btn"
             onClick={onToggleTimer}
             title={isTimerRunning ? 'Pause timer' : 'Start timer'}
-            className="p-1 hover:bg-slate-700 rounded text-slate-200 transition-colors"
+            className="p-1 hover:bg-slate-700 rounded text-slate-200 transition-colors cursor-pointer"
           >
             {isTimerRunning ? <Pause className="w-3.5 h-3.5 text-amber-400" /> : <Play className="w-3.5 h-3.5 text-emerald-400" />}
           </button>
@@ -131,7 +121,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             id="timer-add-min-btn"
             onClick={onAddTimerMinute}
             title="Add +1 minute"
-            className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200"
+            className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 cursor-pointer"
           >
             +1m
           </button>
@@ -139,19 +129,19 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             id="timer-reset-btn"
             onClick={onResetTimer}
             title="Reset timer"
-            className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-slate-200 transition-colors"
+            className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Right: Actions (Role Shuffle, Multi-Device Cloud Sync, AI Tutor, Print) */}
+        {/* Right: Actions (Role Shuffle, AI Tutor, Print) */}
         <div className="flex items-center gap-2">
           {/* Step 1: Roles Shuffler Button */}
           <button
             id="open-role-shuffle-btn"
             onClick={onOpenRoleShuffle}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white border border-indigo-400/40 text-xs font-bold shadow-xs transition-all ring-2 ring-indigo-400/30"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white border border-indigo-400/40 text-xs font-bold shadow-xs transition-all ring-2 ring-indigo-400/30 cursor-pointer"
             title="Step 1: Assign Student Team Roster & Shuffle 8 Rotating Roles"
           >
             <Users className="w-3.5 h-3.5" />
@@ -161,34 +151,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             </span>
           </button>
 
-          {/* Cloud Sync Button */}
-          <button
-            id="open-cloud-sync-btn"
-            onClick={onOpenCloudSync}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-              roomId
-                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40 hover:bg-emerald-900/60'
-                : 'bg-slate-800 hover:bg-slate-750 text-slate-300 border-slate-700'
-            }`}
-          >
-            {roomId ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span className="font-mono font-bold tracking-wider">{roomId}</span>
-              </>
-            ) : (
-              <>
-                <Cloud className="w-3.5 h-3.5 text-slate-400" />
-                <span className="hidden sm:inline">Sync Room</span>
-              </>
-            )}
-          </button>
-
           {/* AI Clinical Tutor Button */}
           <button
             id="open-ai-tutor-btn"
             onClick={onOpenAiTutor}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 text-xs font-medium transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 text-xs font-medium transition-all cursor-pointer"
             title="Ask AI Clinical Facilitator for Socratic feedback"
           >
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -199,7 +166,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <button
             id="header-print-report-btn"
             onClick={onPrintReport}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
             title="Print or Export Group Report"
           >
             <Printer className="w-3.5 h-3.5" />

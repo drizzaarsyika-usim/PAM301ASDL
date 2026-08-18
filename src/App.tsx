@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ALL_SDL_CASES, GET_CASE_BY_ID } from './data/cases';
-import { SdlCase, TeamReflection, RoomSession } from './types';
+import React, { useState, useEffect } from 'react';
+import { ALL_SDL_CASES } from './data/cases';
+import { SdlCase, TeamReflection } from './types';
 import { TEAM_ROLES } from './data/roles';
 import { HeaderNav } from './components/HeaderNav';
 import { TeamSetupBanner } from './components/TeamSetupBanner';
@@ -9,7 +9,6 @@ import { StageStepper } from './components/StageStepper';
 import { StageCommitmentView } from './components/StageCommitmentView';
 import { WrapUpScreen } from './components/WrapUpScreen';
 import { RoleSidebar } from './components/RoleSidebar';
-import { CloudSyncModal } from './components/CloudSyncModal';
 import { PrintableReportModal } from './components/PrintableReportModal';
 import { AiTutorModal } from './components/AiTutorModal';
 
@@ -53,24 +52,17 @@ export default function App() {
 
   // 2. Modals & Drawers
   const [isRoleSidebarOpen, setIsRoleSidebarOpen] = useState<boolean>(false);
-  const [isCloudSyncOpen, setIsCloudSyncOpen] = useState<boolean>(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
   const [isAiTutorOpen, setIsAiTutorOpen] = useState<boolean>(false);
   const [aiTutorStageKey, setAiTutorStageKey] = useState<string>('history');
 
-  // 3. Multi-Device Room State
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const lastSyncTimestampRef = useRef<number>(0);
-
-  // 4. Per-Stage Countdown Timer
+  // 3. Per-Stage Countdown Timer
   const [timerSeconds, setTimerSeconds] = useState<number>(ALL_SDL_CASES[0].stages[0].suggestedDurationMinutes * 60);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
   // Load from local storage or URL query param on mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get('room');
     const caseParam = urlParams.get('case');
 
     if (caseParam) {
@@ -78,33 +70,29 @@ export default function App() {
       if (found) setCurrentCase(found);
     }
 
-    if (roomParam) {
-      joinRoom(roomParam.toUpperCase());
-    } else {
-      // Load cached local state
-      try {
-        const savedCaseId = localStorage.getItem('sdl_current_case_id');
-        if (savedCaseId) {
-          const found = ALL_SDL_CASES.find((c) => c.id === savedCaseId);
-          if (found) setCurrentCase(found);
-        }
-        const savedAnswers = localStorage.getItem(`sdl_answers_${savedCaseId || ALL_SDL_CASES[0].id}`);
-        if (savedAnswers) setStageAnswers(JSON.parse(savedAnswers));
-
-        const savedUnlocked = localStorage.getItem(`sdl_unlocked_${savedCaseId || ALL_SDL_CASES[0].id}`);
-        if (savedUnlocked) setUnlockedStages(JSON.parse(savedUnlocked));
-
-        const savedReflection = localStorage.getItem(`sdl_reflection_${savedCaseId || ALL_SDL_CASES[0].id}`);
-        if (savedReflection) setReflection(JSON.parse(savedReflection));
-
-        const savedTeammates = localStorage.getItem('sdl_teammates');
-        if (savedTeammates) setTeammates(JSON.parse(savedTeammates));
-
-        const savedAssignments = localStorage.getItem('sdl_role_assignments');
-        if (savedAssignments) setRoleAssignments(JSON.parse(savedAssignments));
-      } catch (e) {
-        console.error('Error loading local state', e);
+    // Load cached local state
+    try {
+      const savedCaseId = localStorage.getItem('sdl_current_case_id');
+      if (savedCaseId) {
+        const found = ALL_SDL_CASES.find((c) => c.id === savedCaseId);
+        if (found) setCurrentCase(found);
       }
+      const savedAnswers = localStorage.getItem(`sdl_answers_${savedCaseId || ALL_SDL_CASES[0].id}`);
+      if (savedAnswers) setStageAnswers(JSON.parse(savedAnswers));
+
+      const savedUnlocked = localStorage.getItem(`sdl_unlocked_${savedCaseId || ALL_SDL_CASES[0].id}`);
+      if (savedUnlocked) setUnlockedStages(JSON.parse(savedUnlocked));
+
+      const savedReflection = localStorage.getItem(`sdl_reflection_${savedCaseId || ALL_SDL_CASES[0].id}`);
+      if (savedReflection) setReflection(JSON.parse(savedReflection));
+
+      const savedTeammates = localStorage.getItem('sdl_teammates');
+      if (savedTeammates) setTeammates(JSON.parse(savedTeammates));
+
+      const savedAssignments = localStorage.getItem('sdl_role_assignments');
+      if (savedAssignments) setRoleAssignments(JSON.parse(savedAssignments));
+    } catch (e) {
+      console.error('Error loading local state', e);
     }
   }, []);
 
@@ -156,16 +144,6 @@ export default function App() {
 
     setTimerSeconds(newCase.stages[0].suggestedDurationMinutes * 60);
     setIsTimerRunning(false);
-
-    if (roomId) {
-      syncToServer({
-        caseId: newCase.id,
-        currentStageIndex: 0,
-        unlockedStages: [0],
-        stageAnswers: {},
-        reflection: DEFAULT_REFLECTION
-      });
-    }
   };
 
   // Stage Answer Commit Handler
@@ -184,18 +162,9 @@ export default function App() {
         localStorage.setItem(`sdl_unlocked_${currentCase.id}`, JSON.stringify(newUnlocked));
       }
     }
-
-    if (roomId) {
-      syncToServer({
-        stageAnswers: updated,
-        unlockedStages: unlockedStages.includes(currentStageIndex + 1)
-          ? unlockedStages
-          : [...unlockedStages, currentStageIndex + 1]
-      });
-    }
   };
 
-  // Teammates and Roles update
+  // Team & Role Management
   const handleUpdateTeammates = (names: string[]) => {
     setTeammates(names);
     localStorage.setItem('sdl_teammates', JSON.stringify(names));
@@ -209,14 +178,11 @@ export default function App() {
     });
     setRoleAssignments(updatedAssignments);
     localStorage.setItem('sdl_role_assignments', JSON.stringify(updatedAssignments));
-
-    if (roomId) syncToServer({ teammates: names, roleAssignments: updatedAssignments });
   };
 
   const handleUpdateAssignments = (assignments: Record<string, string>) => {
     setRoleAssignments(assignments);
     localStorage.setItem('sdl_role_assignments', JSON.stringify(assignments));
-    if (roomId) syncToServer({ roleAssignments: assignments });
   };
 
   const handleShuffleRoles = () => {
@@ -227,7 +193,6 @@ export default function App() {
       });
       setRoleAssignments(emptyAssignments);
       localStorage.setItem('sdl_role_assignments', JSON.stringify(emptyAssignments));
-      if (roomId) syncToServer({ roleAssignments: emptyAssignments });
       return;
     }
 
@@ -243,118 +208,12 @@ export default function App() {
     });
     setRoleAssignments(newAssignments);
     localStorage.setItem('sdl_role_assignments', JSON.stringify(newAssignments));
-    if (roomId) syncToServer({ roleAssignments: newAssignments });
   };
 
   const handleUpdateReflection = (ref: TeamReflection) => {
     setReflection(ref);
     localStorage.setItem(`sdl_reflection_${currentCase.id}`, JSON.stringify(ref));
-    if (roomId) syncToServer({ reflection: ref });
   };
-
-  // Cloud Room Sync API Helpers
-  const createRoom = async () => {
-    setIsSyncing(true);
-    try {
-      const payload: Partial<RoomSession> = {
-        caseId: currentCase.id,
-        currentStageIndex,
-        unlockedStages,
-        stageAnswers,
-        roleAssignments,
-        teammates,
-        reflection,
-        timerSeconds,
-        isTimerRunning
-      };
-      const res = await fetch('/api/room/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data.roomId) {
-        setRoomId(data.roomId);
-        const url = new URL(window.location.href);
-        url.searchParams.set('room', data.roomId);
-        window.history.replaceState({}, '', url.toString());
-      }
-    } catch (err) {
-      console.error('Failed to create room', err);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const joinRoom = async (code: string) => {
-    setIsSyncing(true);
-    try {
-      const res = await fetch(`/api/room/${code}`);
-      const data = await res.json();
-      if (data.session) {
-        setRoomId(code);
-        applyRemoteSession(data.session);
-        const url = new URL(window.location.href);
-        url.searchParams.set('room', code);
-        window.history.replaceState({}, '', url.toString());
-      }
-    } catch (err) {
-      console.error('Failed to join room', err);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const disconnectRoom = () => {
-    setRoomId(null);
-    const url = new URL(window.location.href);
-    url.searchParams.delete('room');
-    window.history.replaceState({}, '', url.toString());
-  };
-
-  const syncToServer = async (delta: Partial<RoomSession>) => {
-    if (!roomId) return;
-    try {
-      await fetch(`/api/room/${roomId}/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(delta)
-      });
-      lastSyncTimestampRef.current = Date.now();
-    } catch (err) {
-      console.error('Failed to sync delta to server', err);
-    }
-  };
-
-  const applyRemoteSession = (sess: RoomSession) => {
-    if (sess.caseId && sess.caseId !== currentCase.id) {
-      const found = ALL_SDL_CASES.find((c) => c.id === sess.caseId);
-      if (found) setCurrentCase(found);
-    }
-    if (sess.currentStageIndex !== undefined) setCurrentStageIndex(sess.currentStageIndex);
-    if (sess.unlockedStages) setUnlockedStages(sess.unlockedStages);
-    if (sess.stageAnswers) setStageAnswers(sess.stageAnswers);
-    if (sess.roleAssignments) setRoleAssignments(sess.roleAssignments);
-    if (sess.teammates) setTeammates(sess.teammates);
-    if (sess.reflection) setReflection(sess.reflection);
-  };
-
-  // Background polling for Room changes
-  useEffect(() => {
-    if (!roomId) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/room/${roomId}`);
-        const data = await res.json();
-        if (data.session && data.session.lastUpdated > lastSyncTimestampRef.current + 500) {
-          applyRemoteSession(data.session);
-        }
-      } catch (e) {
-        // silent fail on network hiccups
-      }
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [roomId, currentCase.id]);
 
   const activeStage = currentCase.stages[currentStageIndex];
   const isWrapUp = currentStageIndex === 7 || activeStage.stageKey === 'wrapup_reflection';
@@ -369,7 +228,6 @@ export default function App() {
         currentCase={currentCase}
         onSelectCase={handleSelectCase}
         onOpenRoleShuffle={() => setIsRoleSidebarOpen(true)}
-        onOpenCloudSync={() => setIsCloudSyncOpen(true)}
         onOpenAiTutor={() => {
           setAiTutorStageKey(activeStage.stageKey);
           setIsAiTutorOpen(true);
@@ -389,8 +247,6 @@ export default function App() {
         roleAssignments={roleAssignments}
         teammates={teammates}
         roles={TEAM_ROLES}
-        roomId={roomId}
-        isCloudSynced={!!roomId}
         timerSeconds={timerSeconds}
         isTimerRunning={isTimerRunning}
         onToggleTimer={() => setIsTimerRunning(!isTimerRunning)}
@@ -480,16 +336,6 @@ export default function App() {
         onUpdateTeammates={handleUpdateTeammates}
         roleAssignments={roleAssignments}
         onUpdateAssignments={handleUpdateAssignments}
-      />
-
-      <CloudSyncModal
-        isOpen={isCloudSyncOpen}
-        onClose={() => setIsCloudSyncOpen(false)}
-        roomId={roomId}
-        onCreateRoom={createRoom}
-        onJoinRoom={joinRoom}
-        onDisconnectRoom={disconnectRoom}
-        isSyncing={isSyncing}
       />
 
       <PrintableReportModal

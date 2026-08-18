@@ -317,10 +317,10 @@ export const CARDIO_CASES: SdlCase[] = [
     subTitle: 'Rheumatic Mitral Stenosis complicated by Rapid Atrial Fibrillation & Acute Pulmonary Oedema',
     assignmentName: 'Rhythm Strip & Valvular Echocardiography Reasoning',
     stem: {
-      patientName: 'Puan Siti Nurhaliza binti Kamaruddin',
+      patientName: 'Madam Tan Mei Ling',
       age: 38,
       gender: 'Female',
-      occupation: 'School teacher',
+      occupation: 'Secondary school science teacher',
       setting: 'Medical Assessment Unit (MAU)',
       triageCategory: 'Yellow (Urgent)',
       presentingComplaint: 'Progressive shortness of breath for 1 week, acutely worsening over the last 24 hours with orthopnoea and heart palpitations.',
@@ -510,27 +510,27 @@ export const CARDIO_CASES: SdlCase[] = [
       {
         stageKey: 'wrapup_reflection',
         stageNumber: 8,
-        title: 'Wrap-Up, Islamic Considerations & Reflection',
+        title: 'Wrap-Up, Patient-Centred Counseling & Reflection',
         shortTitle: 'Wrap-Up',
         suggestedDurationMinutes: 7,
         primaryRole: 'scribe',
-        prompt: 'Formulate patient-centered counseling, Islamic prayer adaptations, and answer the Section 8 reflection prompts.',
+        prompt: 'Formulate patient-centered counseling, anticoagulation safety, ergonomics and rest adaptations, and answer the Section 8 reflection prompts.',
         expertBenchmark: {
           title: 'Wrap-Up & Group Reflection',
           summary: 'Holistic counseling regarding pregnancy risks, lifelong anticoagulation, secondary antibiotic prophylaxis, and reflective debrief.',
           keyPoints: [
             'Warfarin Counseling: High teratogenic risk in pregnancy (counsel on contraception/switch to LMWH if planning pregnancy), consistent vitamin K diet, regular INR monitoring.',
-            'Rukhsah for Solat: Patient experiencing orthopnoea and severe dyspnoea cannot perform sujud or ruku flat; permit sitting in a chair during prayer until decongested.',
+            'Ergonomics & Physical Rest: Patient experiencing orthopnoea and severe dyspnoea needs elevated backrest (semi-Fowler position); permit seated rest during teaching duties until cardiac decongestion is achieved.',
             'Infective Endocarditis Prophylaxis: Education on meticulous dental hygiene and antibiotic prophylaxis prior to dental procedures.'
           ]
         }
       }
     ],
     islamicConsiderations: {
-      rukhsahSolat: 'Severe orthopnoea prevents the patient from prostrating (sujud) flat on the floor. She may perform solat seated on a stable chair (solat secara duduk), inclining the torso deeper for sujud than for ruku.',
-      fastingRamadanGuidance: 'Acute pulmonary congestion and active initiation of IV diuretics and Warfarin require adequate hydration and frequent drug titration; fasting should be deferred during the unstable phase.',
-      halalMedicationAndDiet: 'Warfarin is halal; educate patient on consistent green vegetable intake to avoid INR fluctuations. Enoxaparin (if bridging required) should be accompanied by clear explanation of medical necessity.',
-      familyCommunicationAndBioethics: 'Discuss reproductive planning empathetically with patient and husband: severe mitral stenosis poses maternal mortality risks in pregnancy; planned valve repair/replacement is crucial prior to future conception.',
+      rukhsahSolat: 'Severe orthopnoea prevents flat supine or strenuous exertion; patient is supported in an upright 45-degree semi-Fowler posture with adequate pillow support for comfortable resting and breathing.',
+      fastingRamadanGuidance: 'Acute pulmonary congestion and active initiation of IV diuretics and Warfarin require adequate hydration and frequent drug titration; strict fasting is medically deferred during unstable cardiac stages.',
+      halalMedicationAndDiet: 'Warfarin dietary education: Maintain consistent dietary intake of green leafy vegetables (kangkung, sawi, broccoli) to avoid erratic INR fluctuations; discuss safe over-the-counter and complementary health product precautions.',
+      familyCommunicationAndBioethics: 'Discuss reproductive planning empathetically with Madam Tan and her husband: severe mitral stenosis poses maternal mortality risks in pregnancy; planned valve repair/replacement is crucial prior to future conception.',
       patientEducationAndHolisticWellness: 'Secondary prophylaxis education: Monthly penicillin injections prevent further recurrent rheumatic attacks; explain that compliance protects her heart valves for life.'
     },
     keyLearningPoints: [

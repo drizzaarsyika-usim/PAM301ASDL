@@ -9,7 +9,7 @@ export const RHEUM_DERM_NEURO_CASE: SdlCase = {
   subTitle: 'Acute Meningoencephalitis vs Neuropsychiatric Systemic Lupus Erythematosus (NPSLE) & Secondary Headache Red Flags',
   assignmentName: 'Structured Approach to Acute Headache & SNOOP4 Red Flags',
   stem: {
-    patientName: 'Puan Nur Sabrina binti Hashim',
+    patientName: 'Madam Jessica Lee Sook Fern',
     age: 28,
     gender: 'Female',
     occupation: 'Graphic designer',
@@ -207,16 +207,16 @@ export const RHEUM_DERM_NEURO_CASE: SdlCase = {
     {
       stageKey: 'wrapup_reflection',
       stageNumber: 8,
-      title: 'Wrap-Up, Sun Protection, Islamic Care & Reflection',
+      title: 'Wrap-Up, Sun Protection, Patient-Centred Care & Reflection',
       shortTitle: 'Wrap-Up',
       suggestedDurationMinutes: 7,
       primaryRole: 'scribe',
-      prompt: 'Counseling on UV/Sun avoidance (Hijab as photoprotection), pregnancy planning with teratogenic DMARDs, and Section 8 reflection.',
+      prompt: 'Counseling on UV/Sun avoidance, photoprotective lifestyle adaptations, pregnancy planning with teratogenic DMARDs, and Section 8 reflection.',
       expertBenchmark: {
         title: 'Comprehensive Lupus Counseling & Bioethics',
         summary: 'Photoprotection, Cyclophosphamide gonadal preservation, teratogenicity counseling, and metacognitive reflection.',
         keyPoints: [
-          'Photoprotection & Hijab: UV radiation is a direct trigger for keratinocyte apoptosis and autoantigen exposure. Sunscreen SPF 50+ plus covering attire (Hijab and long sleeves) provides excellent physical UV barrier.',
+          'Photoprotection: UV radiation is a direct trigger for keratinocyte apoptosis and autoantigen exposure. Sunscreen SPF 50+ (broad spectrum UVA/UVB), wide-brimmed hats, UV umbrellas, and long sleeves provide essential physical UV barrier.',
           'Fertility & Cyclophosphamide: Cyclophosphamide carries risk of premature ovarian failure. Discuss GnRH agonists (Leuprolide) for ovarian protection during pulse therapy.',
           'Teratogenicity: Teratogenic drugs (Mycophenolate, Cyclophosphamide) require strict dual contraception until disease is quiescent for >= 6 months before planning pregnancy.'
         ]
@@ -224,10 +224,10 @@ export const RHEUM_DERM_NEURO_CASE: SdlCase = {
     }
   ],
   islamicConsiderations: {
-    rukhsahSolat: 'During the acute encephalopathic and post-ictal state, the patient is excused from solat. When sensorium clears, perform prayer in bed/chair with dry tayammum if intravenous lines or severe arthritis impair wudhu.',
-    fastingRamadanGuidance: 'High-dose pulse steroids, active lupus nephritis, and acute CNS inflammation require adequate hydration, frequent medications, and tight electrolyte monitoring. Fasting is excused during active flares.',
-    halalMedicationAndDiet: 'All recommended immunosuppressants and biologics are halal. Explain the medical imperative of preserving neurological function.',
-    familyCommunicationAndBioethics: 'Counsel husband and extended family on the chronic fluctuating nature of SLE, emphasizing psychological support, debunking "black magic" or "santau" misconceptions often attributed to mysterious rashes and seizures in local culture.',
+    rukhsahSolat: 'During the acute encephalopathic and post-ictal state, the patient is in critical care. When sensorium clears, provide supportive resting postures and avoid excessive physical exertion during active inflammatory flares.',
+    fastingRamadanGuidance: 'High-dose pulse steroids, active lupus nephritis, and acute CNS inflammation require adequate hydration, frequent medications, and tight electrolyte monitoring. Fasting is excused and contraindicated during active flares.',
+    halalMedicationAndDiet: 'All recommended immunosuppressants and biologics are standard first-line therapies. Provide clear patient information to relieve anxieties regarding immunosuppressive treatments.',
+    familyCommunicationAndBioethics: 'Counsel husband and extended family on the chronic fluctuating nature of SLE, emphasizing psychological support, open communication, and avoiding alternative untested remedies that delay proven therapy.',
     patientEducationAndHolisticWellness: 'Teach holistic lupus management: strict sun protection (broad-spectrum sunscreen SPF 50+), regular clinic visits, avoidance of smoking, and early reporting of fever.'
   },
   keyLearningPoints: [
