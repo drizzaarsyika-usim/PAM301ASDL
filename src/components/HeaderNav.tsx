@@ -70,14 +70,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-sm sm:text-base font-bold tracking-tight text-white leading-none">
-                  Clinical Reasoning SDL
+                  DigiSCRIBE
                 </h1>
                 <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                   Medical Y3/Y4
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-                Self-Directed Learning Case Simulation
+                Digital Smart Clinical Reasoning Innovative Brainstorming Experience
               </p>
             </div>
           </div>
