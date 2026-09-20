@@ -173,21 +173,23 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <button
             id="header-sync-btn"
             onClick={onOpenSync}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer ${
               activeRoomId
-                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/50 ring-2 ring-emerald-400/30'
+                : 'bg-teal-600 hover:bg-teal-500 text-white border border-teal-400/40 shadow-teal-950/40'
             }`}
             title="Multi-Device Sync: Collaborate across phones, tablets & laptops"
           >
-            <Cloud className={`w-3.5 h-3.5 ${activeRoomId ? 'text-emerald-400' : 'text-slate-400'} ${isSyncing ? 'animate-spin' : ''}`} />
+            <Cloud className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             {activeRoomId ? (
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Room: <strong className="font-mono text-emerald-200">{activeRoomId}</strong></span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                <span>Room: <strong className="font-mono text-emerald-100">{activeRoomId}</strong></span>
               </span>
             ) : (
-              <span>Sync</span>
+              <span className="flex items-center gap-1">
+                <span>Multi-Device Sync</span>
+              </span>
             )}
           </button>
 

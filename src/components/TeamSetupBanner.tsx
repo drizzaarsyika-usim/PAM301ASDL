@@ -19,7 +19,8 @@ import {
   ShieldAlert,
   RotateCw,
   Info,
-  Maximize2
+  Maximize2,
+  Cloud
 } from 'lucide-react';
 import { RoleDetailModal } from './RoleDetailModal';
 
@@ -28,6 +29,8 @@ interface TeamSetupBannerProps {
   roleAssignments: Record<string, string>;
   onShuffleRoles: () => void;
   onOpenManageModal: () => void;
+  onOpenSync?: () => void;
+  activeRoomId?: string | null;
 }
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -45,7 +48,9 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
   teammates,
   roleAssignments,
   onShuffleRoles,
-  onOpenManageModal
+  onOpenManageModal,
+  onOpenSync,
+  activeRoomId
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isShufflingAnim, setIsShufflingAnim] = useState<boolean>(false);
@@ -150,6 +155,30 @@ export const TeamSetupBanner: React.FC<TeamSetupBannerProps> = ({
               <UserPlus className="w-3.5 h-3.5 text-indigo-400" />
               <span>Edit Students ({teammates.length})</span>
             </button>
+
+            {/* Multi-Device Sync */}
+            {onOpenSync && (
+              <button
+                id="team-setup-sync-devices-btn"
+                onClick={onOpenSync}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                  activeRoomId
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/50'
+                    : 'bg-teal-700 hover:bg-teal-600 text-white border border-teal-400/40'
+                }`}
+                title="Open Multi-Device Sync to connect other laptops, tablets & phones"
+              >
+                <Cloud className="w-3.5 h-3.5 text-teal-200" />
+                {activeRoomId ? (
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    <span>Room: {activeRoomId}</span>
+                  </span>
+                ) : (
+                  <span>☁️ Sync Devices</span>
+                )}
+              </button>
+            )}
 
             {/* Collapse / Expand */}
             <button

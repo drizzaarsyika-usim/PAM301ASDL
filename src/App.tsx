@@ -12,6 +12,7 @@ import { RoleSidebar } from './components/RoleSidebar';
 import { PrintableReportModal } from './components/PrintableReportModal';
 import { AiTutorModal } from './components/AiTutorModal';
 import { MultiDeviceSyncModal } from './components/MultiDeviceSyncModal';
+import { Cloud } from 'lucide-react';
 
 const DEFAULT_TEAMMATES = [
   'Student 1',
@@ -505,6 +506,8 @@ export default function App() {
           roleAssignments={roleAssignments}
           onShuffleRoles={handleShuffleRoles}
           onOpenManageModal={() => setIsRoleSidebarOpen(true)}
+          onOpenSync={() => setIsSyncModalOpen(true)}
+          activeRoomId={activeRoomId}
         />
 
         {/* 2. Sticky Clinical Stem Banner */}
@@ -618,6 +621,24 @@ export default function App() {
         reflection={reflection}
         onImportState={handleImportState}
       />
+
+      {/* Persistent Floating Sync Button (ensures visible on any device or scroll position) */}
+      <button
+        id="floating-sync-btn"
+        onClick={() => setIsSyncModalOpen(true)}
+        className="fixed bottom-4 right-4 z-40 flex items-center gap-2 px-3.5 py-2 rounded-full shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs border border-emerald-300/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        title="Multi-Device Collaboration & Cloud Sync"
+      >
+        <Cloud className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+        {activeRoomId ? (
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span>Room: {activeRoomId}</span>
+          </span>
+        ) : (
+          <span>☁️ Sync Devices</span>
+        )}
+      </button>
     </div>
   );
 }
