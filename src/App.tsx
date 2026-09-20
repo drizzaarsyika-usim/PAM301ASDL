@@ -11,6 +11,7 @@ import { WrapUpScreen } from './components/WrapUpScreen';
 import { RoleSidebar } from './components/RoleSidebar';
 import { PrintableReportModal } from './components/PrintableReportModal';
 import { AiTutorModal } from './components/AiTutorModal';
+import { MultiDeviceSyncModal } from './components/MultiDeviceSyncModal';
 
 const DEFAULT_TEAMMATES = [
   'Student 1',
@@ -60,6 +61,13 @@ export default function App() {
   const [timerSeconds, setTimerSeconds] = useState<number>(ALL_SDL_CASES[0].stages[0].suggestedDurationMinutes * 60);
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
 
+  // 4. Multi-Device Sync State
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [lastSyncedTime, setLastSyncedTime] = useState<Date | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
   // Load from local storage or URL query param on mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -91,12 +99,223 @@ export default function App() {
 
       const savedAssignments = localStorage.getItem('sdl_role_assignments');
       if (savedAssignments) setRoleAssignments(JSON.parse(savedAssignments));
+
+      const roomParam = urlParams.get('room') || localStorage.getItem('sdl_active_room_id');
+      if (roomParam) {
+        setActiveRoomId(roomParam.toUpperCase());
+      }
     } catch (e) {
       console.error('Error loading local state', e);
     }
   }, []);
 
-  // Timer tick effect
+  // Background Room Polling / Sync
+  useEffect(() => {
+    if (!activeRoomId) return;
+
+    let isMounted = true;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/room/${activeRoomId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const room = data.session || data.room;
+        if (!room || !isMounted) return;
+
+        // If remote has newer answers, merge them
+        if (room.stageAnswers && Object.keys(room.stageAnswers).length > 0) {
+          setStageAnswers((prev) => {
+            let changed = false;
+            const merged = { ...prev };
+            for (const [k, v] of Object.entries(room.stageAnswers as Record<string, string>)) {
+              if (v && v.trim() && (!prev[k] || !prev[k].trim())) {
+                merged[k] = v;
+                changed = true;
+              }
+            }
+            return changed ? merged : prev;
+          });
+        }
+
+        if (room.unlockedStages && Array.isArray(room.unlockedStages)) {
+          setUnlockedStages((prev) => {
+            const combined = Array.from(new Set([...prev, ...room.unlockedStages]));
+            return combined.length !== prev.length ? combined : prev;
+          });
+        }
+
+        setLastSyncedTime(new Date());
+      } catch {
+        // Silent poll error (e.g. offline)
+      }
+    }, 4500);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [activeRoomId]);
+
+  // Multi-Device Room Handlers
+  const handleCreateRoom = async (): Promise<string | null> => {
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch('/api/room/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caseId: currentCase.id,
+          currentStageIndex,
+          unlockedStages,
+          stageAnswers,
+          teammates,
+          roleAssignments,
+          reflection,
+          timerSeconds,
+          isTimerRunning
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
+
+      const data = await res.json();
+      const newRoomId = (data.roomId || '').toUpperCase();
+      setActiveRoomId(newRoomId);
+      localStorage.setItem('sdl_active_room_id', newRoomId);
+      setLastSyncedTime(new Date());
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', newRoomId);
+      url.searchParams.set('case', currentCase.id);
+      window.history.replaceState({}, '', url.toString());
+
+      return newRoomId;
+    } catch (err: any) {
+      console.warn('Could not connect to live backend room server:', err);
+      // Fallback: Generate local 6-digit room code for offline / manual sharing
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      setActiveRoomId(code);
+      localStorage.setItem('sdl_active_room_id', code);
+      setSyncError('Live server unreachable. Use the "Code Export / Transfer" tab to share answers with teammates on static hosts.');
+      return code;
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleJoinRoom = async (roomIdToJoin: string): Promise<boolean> => {
+    const cleanId = roomIdToJoin.trim().toUpperCase();
+    if (!cleanId) return false;
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch(`/api/room/${cleanId}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error(`Room "${cleanId}" not found or session expired.`);
+        }
+        throw new Error(`Connection returned ${res.status}`);
+      }
+      const data = await res.json();
+      const room = data.session || data.room;
+      if (!room) throw new Error('Invalid room session data received.');
+
+      if (room.caseId && room.caseId !== currentCase.id) {
+        const found = ALL_SDL_CASES.find((c) => c.id === room.caseId);
+        if (found) setCurrentCase(found);
+      }
+      if (room.currentStageIndex !== undefined) setCurrentStageIndex(room.currentStageIndex);
+      if (room.unlockedStages) setUnlockedStages(room.unlockedStages);
+      if (room.stageAnswers) setStageAnswers(room.stageAnswers);
+      if (room.teammates && room.teammates.length > 0) setTeammates(room.teammates);
+      if (room.roleAssignments) setRoleAssignments(room.roleAssignments);
+      if (room.reflection) setReflection(room.reflection);
+
+      setActiveRoomId(cleanId);
+      localStorage.setItem('sdl_active_room_id', cleanId);
+      setLastSyncedTime(new Date());
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', cleanId);
+      if (room.caseId) url.searchParams.set('case', room.caseId);
+      window.history.replaceState({}, '', url.toString());
+
+      return true;
+    } catch (err: any) {
+      console.warn('Failed to join room:', err);
+      setSyncError(err.message || 'Could not connect to room.');
+      return false;
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleLeaveRoom = () => {
+    setActiveRoomId(null);
+    localStorage.removeItem('sdl_active_room_id');
+    const url = new URL(window.location.href);
+    url.searchParams.delete('room');
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  const handleManualSync = async () => {
+    if (!activeRoomId) return;
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch(`/api/room/${activeRoomId}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caseId: currentCase.id,
+          currentStageIndex,
+          unlockedStages,
+          stageAnswers,
+          teammates,
+          roleAssignments,
+          reflection,
+          timerSeconds,
+          isTimerRunning
+        })
+      });
+      if (!res.ok) throw new Error(`Sync returned ${res.status}`);
+      const data = await res.json();
+      const room = data.session || data.room;
+      if (room) {
+        if (room.stageAnswers) {
+          setStageAnswers((prev) => ({ ...room.stageAnswers, ...prev }));
+        }
+        if (room.unlockedStages) {
+          setUnlockedStages((prev) => Array.from(new Set([...prev, ...room.unlockedStages])));
+        }
+      }
+      setLastSyncedTime(new Date());
+    } catch {
+      setSyncError('Could not sync to cloud room server right now.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleImportState = (imported: any) => {
+    if (imported.caseId) {
+      const found = ALL_SDL_CASES.find((c) => c.id === imported.caseId);
+      if (found) setCurrentCase(found);
+    }
+    if (imported.currentStageIndex !== undefined) setCurrentStageIndex(imported.currentStageIndex);
+    if (imported.unlockedStages) setUnlockedStages(imported.unlockedStages);
+    if (imported.stageAnswers) setStageAnswers(imported.stageAnswers);
+    if (imported.teammates) setTeammates(imported.teammates);
+    if (imported.roleAssignments) setRoleAssignments(imported.roleAssignments);
+    if (imported.reflection) setReflection(imported.reflection);
+  };
   useEffect(() => {
     let interval: any = null;
     if (isTimerRunning && timerSeconds > 0) {
@@ -154,13 +373,31 @@ export default function App() {
     localStorage.setItem(`sdl_answers_${currentCase.id}`, JSON.stringify(updated));
 
     // Unlock next stage
+    let nextUnlocked = unlockedStages;
     if (currentStageIndex + 1 < currentCase.stages.length) {
       const nextIdx = currentStageIndex + 1;
       if (!unlockedStages.includes(nextIdx)) {
-        const newUnlocked = [...unlockedStages, nextIdx];
-        setUnlockedStages(newUnlocked);
-        localStorage.setItem(`sdl_unlocked_${currentCase.id}`, JSON.stringify(newUnlocked));
+        nextUnlocked = [...unlockedStages, nextIdx];
+        setUnlockedStages(nextUnlocked);
+        localStorage.setItem(`sdl_unlocked_${currentCase.id}`, JSON.stringify(nextUnlocked));
       }
+    }
+
+    // Push to active room if connected
+    if (activeRoomId) {
+      fetch(`/api/room/${activeRoomId}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caseId: currentCase.id,
+          currentStageIndex,
+          unlockedStages: nextUnlocked,
+          stageAnswers: updated,
+          teammates,
+          roleAssignments,
+          reflection
+        })
+      }).catch(() => {});
     }
   };
 
@@ -245,6 +482,9 @@ export default function App() {
               localStorage.removeItem(`sdl_reflection_${currentCase.id}`);
             }
           }}
+          onOpenSync={() => setIsSyncModalOpen(true)}
+          activeRoomId={activeRoomId}
+          isSyncing={isSyncing}
           roleAssignments={roleAssignments}
           teammates={teammates}
           roles={TEAM_ROLES}
@@ -356,6 +596,27 @@ export default function App() {
         currentCase={currentCase}
         activeStageKey={aiTutorStageKey}
         stageAnswers={stageAnswers}
+      />
+
+      <MultiDeviceSyncModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        activeRoomId={activeRoomId}
+        onJoinRoom={handleJoinRoom}
+        onCreateRoom={handleCreateRoom}
+        onLeaveRoom={handleLeaveRoom}
+        onManualSync={handleManualSync}
+        isSyncing={isSyncing}
+        lastSyncedTime={lastSyncedTime}
+        syncError={syncError}
+        currentCase={currentCase}
+        stageAnswers={stageAnswers}
+        unlockedStages={unlockedStages}
+        currentStageIndex={currentStageIndex}
+        teammates={teammates}
+        roleAssignments={roleAssignments}
+        reflection={reflection}
+        onImportState={handleImportState}
       />
     </div>
   );

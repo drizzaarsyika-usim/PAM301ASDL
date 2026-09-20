@@ -9,7 +9,8 @@ import {
   RotateCcw, 
   Printer, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Cloud
 } from 'lucide-react';
 
 interface HeaderNavProps {
@@ -19,6 +20,9 @@ interface HeaderNavProps {
   onOpenAiTutor: () => void;
   onPrintReport: () => void;
   onResetCase: () => void;
+  onOpenSync: () => void;
+  activeRoomId: string | null;
+  isSyncing: boolean;
   teammates: string[];
   roleAssignments: Record<string, string>;
   roles: TeamRole[];
@@ -37,6 +41,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenAiTutor,
   onPrintReport,
   onResetCase,
+  onOpenSync,
+  activeRoomId,
+  isSyncing,
   teammates,
   roleAssignments,
   roles,
@@ -160,6 +167,28 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           >
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
             <span className="hidden lg:inline">AI Tutor</span>
+          </button>
+
+          {/* Multi-Device Sync */}
+          <button
+            id="header-sync-btn"
+            onClick={onOpenSync}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+              activeRoomId
+                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+            }`}
+            title="Multi-Device Sync: Collaborate across phones, tablets & laptops"
+          >
+            <Cloud className={`w-3.5 h-3.5 ${activeRoomId ? 'text-emerald-400' : 'text-slate-400'} ${isSyncing ? 'animate-spin' : ''}`} />
+            {activeRoomId ? (
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Room: <strong className="font-mono text-emerald-200">{activeRoomId}</strong></span>
+              </span>
+            ) : (
+              <span>Sync</span>
+            )}
           </button>
 
           {/* Print Report */}
